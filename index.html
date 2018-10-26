@@ -12,12 +12,26 @@
         'h1',
         null,
         'Adnan'
+      );
+      
+      const imgElement = React.createElement(
+        'img',
+        { 
+          src: 'https://avatars1.githubusercontent.com/u/28072874?s=460&v=4',
+          alt: 'Adnan Usman'
+        }
+      );
+
+      const container = React.createElement(
+        'div',
+        {},
+        [nameElement, imgElement]
       )
 
       ReactDOM.render(
-        nameElement,
+        container,
         document.getElementById('app')
-      )
+      );
     </script>
   </body>
 </html>

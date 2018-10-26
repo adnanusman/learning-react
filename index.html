@@ -4,32 +4,30 @@
     <title>Learning React</title>
     <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
   </head>
   <body>
     <div id="app"></div>
-    <script>
-      const nameElement = React.createElement(
-        'h1',
-        null,
-        'Adnan'
-      );
+    <script type="text/babel">
+      function NameComponent(props) {
+        return <h1>{props.name}</h1>;
+      };
       
-      const imgElement = React.createElement(
-        'img',
-        { 
-          src: 'https://avatars1.githubusercontent.com/u/28072874?s=460&v=4',
-          alt: 'Adnan Usman'
-        }
-      );
+      function ImgComponent(props) {
+        return <img src={props.img} alt={props.alt} />;
+      }
 
-      const container = React.createElement(
-        'div',
-        {},
-        [nameElement, imgElement]
-      )
+      function ContainerComponent() {
+        return (
+          <div>
+            <NameComponent name="Adnan Usman" />
+            <ImgComponent img="https://avatars1.githubusercontent.com/u/28072874?s=460&v=4" alt="Adnan Usman" />
+          </div>
+        )
+      }
 
       ReactDOM.render(
-        container,
+        <ContainerComponent />,
         document.getElementById('app')
       );
     </script>

@@ -50,12 +50,15 @@
             input: '',
           }
 
+          // bind the reference to the `this` keyword in the following methods, 
+          // so the `this` keyword is always referencing our class object.
           this.removeFriend = this.removeFriend.bind(this);
           this.handleInput = this.handleInput.bind(this);
           this.addFriend = this.addFriend.bind(this);
           this.clearAll = this.clearAll.bind(this);
           this.deactivateFriend = this.deactivateFriend.bind(this);
           this.activateFriend = this.activateFriend.bind(this);
+          this.handleKeyPress = this.handleKeyPress.bind(this);
         }
 
         clearAll() {
@@ -69,7 +72,7 @@
           if(this.state.input !== '') { 
             this.setState(currentState => {
               return {
-                activeFriends: currentState.activeFriends.concat([this.state.input]),
+                activeFriends: currentState.activeFriends.concat([currentState.input]),
                 input: '',
               }
             })
@@ -108,6 +111,12 @@
             }
           })
         }
+        
+        handleKeyPress(e) {
+          if(e.which === 13) {
+            this.addFriend();
+          }
+        }
   
         render() {
           return(
@@ -118,6 +127,7 @@
                   placeholder="new friend"
                   value={this.state.input}
                   onChange={this.handleInput}
+                  onKeyPress={this.handleKeyPress}
                 />
                 <button onClick={this.addFriend}>Submit</button>
               </div>

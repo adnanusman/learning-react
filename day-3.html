@@ -5,6 +5,25 @@
   <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
   <script src='https://unpkg.com/babel-standalone@6/babel.min.js'></script>
+
+  <style type="text/css">
+  
+  .repoList {
+    display: block;
+  }
+
+  .repoUl {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .repoUl li {
+    padding: 0 10px;
+    list-style-type: none;
+    margin: 10px 10px;
+  }
+  
+  </style>
 </head>
 <body>
   <div id='app'></div>
@@ -13,7 +32,7 @@
     // This is how we are grabbing the data from an external source.
     window.API = {
       fetchPopularRepos(language) {
-        // "language" can be "javascript", "ruby", "python", or "all"
+        //  "language" can be "javascript", "ruby", "python", or "all"
         const encodedURI = encodeURI(`https://api.github.com/search/repositories?q=stars:>1+language:${language}&sort=stars&order=desc&type=Repositories`)
         return fetch(encodedURI)
           .then((data) => data.json())
@@ -27,24 +46,33 @@
   </script>
 
   <script type='text/babel'>
+    // A new React Component that basically animates the text 'Loading...', till unmounted.
     class Loading extends React.Component {
       constructor(props) {
         super(props);
+
         this.state = {
           text: 'Loading'
         };
       }
+
+      // This state is always run when the `Loading` component mounts.
       componentDidMount() {
+        // this is a stopper or value we are setting up to equal another value to.
         const stopper = this.state.text + '...';
+        
+        // A simple interval that keeps running and changing the appearance of the text.
         this.interval = window.setInterval(() => {
           this.state.text === stopper
             ? this.setState(() => ({ text: 'Loading' }))
             : this.setState((prevState) => ({ text: prevState.text + '.' }))
         }, 300)
       }
+      // clears interval set in Mount state, when component unmounts
       componentWillUnmount() {
         window.clearInterval(this.interval);
       }
+      // render out the text
       render() {
         return (
           <p>
@@ -53,27 +81,69 @@
         )
       }
     }
+
+    // display the list of repos
     function RepoList(props) {
-      console.log(props.repos);
       return (
-        <div>
+        <div className="repoList">
           <h2>Repo List</h2>
-          <ul>
+          <ul className="repoUl">
+            
             {props.repos.map(repo => (
+             // run loop within JSX :D SO COOL!!
               <li key={repo.id}>
                 <div>
-                  {repo.name} 
-                </div>
-                
-                <div>
-                  <a href="{repo.url}">{repo.url}</a> 
-                </div>
-
-                <div>
-                  {repo.language} 
+                  <ul>
+                    <li>{repo.name}</li> 
+                    <li><a href="{repo.url}">link</a></li> 
+                    <li>{repo.language}</li>
+                  </ul>
                 </div>
               </li>
             ))}  
+          </ul>
+        </div>
+      )
+    }
+
+    function Nav(props) {
+
+      // Tried the long route :P was not the best solution... but it was fun and a good refresher with reduce. :)
+
+      // first grab all the languages out of the array
+      // let onlyLanguages = props.repos.map(repo => {
+      //   return repo.language;
+      // })
+      
+      // create an array with no duplicate languages
+      // first we sort them into an array alphabetically using the sort method. 
+      // Then we use the reduce method to create a new array and return it.
+      // let noDuplicateLanguages = onlyLanguages.sort().reduce((newArray, currentItem, index) => {
+        // figure out the length of the array on each loop cycle.
+        // const length = newArray.length;
+
+        // First check: if the length is 0 skip. This is because there is nothing in the array at first. We provided an empty array as an initial value.
+        // Second check: if the last item is equal to the currentItem in the loop, skip it.
+        // Third check: if the value is null, skip it.
+        // if(length === 0 || newArray[length - 1] !== currentItem && currentItem !== null) {
+          // push the data we need to the new array.
+          // newArray.push(currentItem);
+        // }
+        // return newArray;
+      // }, [])
+
+      const languages = ['all', 'javascript', 'python', 'ruby'];
+
+      return (
+        <div>
+          <h2>Repo Languages</h2>
+          <ul>{languages.map(language => (
+            <li key={language}>
+              <button onClick={() => (props.changeLanguage(language))}>
+                {language}
+              </button>
+            </li>
+          ))}
           </ul>
         </div>
       )
@@ -83,10 +153,25 @@
       constructor(props) {
         super(props);
 
+        this.changeLanguage = this.changeLanguage.bind(this);
+
         this.state = {
           repos: [],
           loading: true
         }
+      }
+
+      changeLanguage(language) {
+        this.setState({
+          loading: true
+        })
+        API.fetchPopularRepos(language)
+          .then(repos => {
+            this.setState({
+              repos: repos,
+              loading: false
+            })
+          })
       }
 
       componentDidMount() {
@@ -109,13 +194,13 @@
         } else {
           return (
             <div>
+              <Nav repos={this.state.repos} changeLanguage={this.changeLanguage} />
               <RepoList repos={this.state.repos} />
             </div>
           )
         }       
       }
     }
-
 
     ReactDOM.render(
       <App />,
